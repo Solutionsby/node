@@ -1,13 +1,32 @@
 var createError = require('http-errors');
+var cookieSession = require('cookie-session');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var config = require('./config')
+const mongoose = require('mongoose');
+
+
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(config.db);
+    console.log('Successfully connected to MongoDB');
+  } catch (error) {
+    console.error('Error connecting to MongoDB', error);
+    process.exit(1);  // Zakończ aplikację w przypadku błędu połączenia
+  }
+};
+connectDB();
+
+
 
 var indexRouter = require('./routes/index');
 var newsRouter = require('./routes/news');
 var quizRouter = require('./routes/quiz');
 var adminRouter = require('./routes/admin');
+const { error } = require('console');
 
 
 var app = express();
@@ -21,6 +40,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieSession({
+  name: 'session',
+  keys: config.keySession,
+  maxAge: config.maxAge
+}))
 
 
 app.use(function(req,res,next){
