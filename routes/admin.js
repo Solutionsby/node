@@ -12,16 +12,45 @@ router.all('*', (req, res, next)=>{
 
 
 /* GET home page. */
-router.get('/',async (req, res) => {
-  const newsData = new News({
-    title: ' Tytul testowy',
-    description: 'Opis'
-  });
-  await newsData.save()
+router.get('/', async (req, res) => {
+  try {
+    const data = await News.find();
 
-  res.render('admin', { title: 'Admin' });
+    res.render('admin/index', { title: 'Admin', data });
+  } catch (err) {
+    res.render('admin/index', { title: 'Admin', data: [], error: err.message });
+  }
 });
 
+router.get('/news/add',(req,res) =>{
+  res.render('admin/news-form', {title:'Dodaj news', body:{}, errors:{} })
+});
+  
+
+router.post('/news/add', async (req, res) => {
+  const body = req.body;
+
+  const newsData = new News(body);
+  const errors = newsData.validateSync();
+
+  if (errors) {
+    res.render('admin/news-form', { title: 'Dodaj news', errors, body });
+    return;
+  }
+
+  await newsData.save();
+   res.redirect('/admin')
+  
+});
+
+router.get('/news/delete/:id', async (req, res) => {
+  try {
+    await News.findByIdAndDelete(req.params.id);
+    res.redirect('/admin');
+  } catch (err) {
+    res.redirect('/admin?error=delete_failed');
+  }
+});
 
 
 

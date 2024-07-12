@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var newsSchema = new Schema({
-    title: {type:String, required:true}, // String is shorthand for {type: String}
-    description: String,
+    title: {type:String, required:[true,"Pole Tytuł jest wymagane"]},
+    description: {type:String, required:[true,"Pole Opis jest wymagane"]},
     date: { type: Date, default: Date.now },
   });
 
